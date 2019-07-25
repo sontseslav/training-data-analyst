@@ -16,7 +16,7 @@ const config = require('../config');
 
 // TODO: Load the module for Cloud Storage
 
-
+const Storage = require('@google-cloud/storage');
 
 // END TODO
 
@@ -30,7 +30,7 @@ const config = require('../config');
 // GCLOUD_PROJECT environment variable.
 
 
-
+const storage = Storage({projectID: config.get('GCLOUD_PROJECT')});
 
 // END TODO
 
@@ -40,13 +40,13 @@ const config = require('../config');
 // The config module provides access to this environment 
 // variable so you can use it in code
 
-
+const GCLOUD_BUCKET = config.get('GCLOUD_BUCKET');
 
 // END TODO
 
 // TODO: Get a reference to the Cloud Storage bucket
 
-
+const bucket = storage.bucket(GCLOUD_BUCKET);
 
 // END TODO
 
@@ -72,7 +72,7 @@ function sendUploadToGCS(req, res, next) {
 
   // TODO: Get a reference to the new object
 
-
+  const file = bucket.file(oname);
 
   // END TODO
 
@@ -83,33 +83,31 @@ function sendUploadToGCS(req, res, next) {
   // Cloud Storage metadata can be used for many purposes, 
   // including establishing the type of an object.
 
-
-
-
-
+  const stream = file.createWriteStream({
+    metadata: {
+      contentType: req.file.mimetype
+    }
+  });
 
   // END TODO
 
 
   // TODO: Attach two event handlers (1) error
   // Event handler if there's an error when uploading
-
+  stream.on('error', err => {
   // TODO: If there's an error move to the next handler
-
-
-
+    next(err);
   // END TODO
-
-
+  });
   // END TODO
 
 
   // TODO: Attach two event handlers (2) finish
   // The upload completed successfully
-
-
+  stream.on('finish', () => {
+    
   // TODO: Make the object publicly accessible
-
+    file.makePublic().then(() => {
 
   // TODO: Set a new property on the file for the
   // public URL for the object
@@ -119,24 +117,24 @@ function sendUploadToGCS(req, res, next) {
   // populate the URL with appropriate values for the bucket 
   // ${GCLOUD_BUCKET} and object name ${oname}
 
-
+      req.file.cloudStoragePublicURL = `https://storage.googleapis.com/${GCLOUD_BUCKET}/${oname}`;
 
   // END TODO
 
   // TODO: Invoke the next middleware handler
 
-
+      next();
 
   // END TODO
-
-
+    });
+  });
   // END TODO
 
 
   // TODO: Upload the file's data into Cloud Storage
 
 
-
+  stream.end(req.file.buffer);
 
   // END TODO
 

@@ -34,17 +34,17 @@ nconf
   .defaults({
 
     // This is the id of your project in the Google Cloud Developers Console.
-    GCLOUD_PROJECT: '',
-    GCLOUD_BUCKET: '',
+    GCLOUD_PROJECT: '112233',
+    GCLOUD_BUCKET: 'bucket',
 
     PORT: 8080
   });
 
 // Check for required settings
-checkConfig('GCLOUD_PROJECT');
+// checkConfig('GCLOUD_PROJECT');
 
-function checkConfig (setting) {
-  if (!nconf.get(setting)) {
-    throw new Error(`You must set ${setting} as an environment variable or in config.json!`);
-  }
-}
+// function checkConfig (setting) {
+//   if (!nconf.get(setting)) {
+//     throw new Error(`You must set ${setting} as an environment variable or in config.json!`);
+//   }
+// }
